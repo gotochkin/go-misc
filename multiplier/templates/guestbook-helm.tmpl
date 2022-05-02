@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .AppName}}
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    name: ''
+    namespace: guestbook
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: helm-guestbook
+    repoURL: 'git@bitbucket.org:~/argocd-demo.git'
+    targetRevision: HEAD
+    helm:
+      parameters:
+        - name: service.type
+          value: LoadBalancer
+        - name: service.port
+          value: "{{ .ServicePort}}"
+  project: nft-testing
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: true
