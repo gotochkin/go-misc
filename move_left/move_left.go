@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-/// Package contains code to multiply files based on a template
-/// The example is created based on an ArgoCD application template
+//
+/// Move all zeroes to left in the array keeping the order
 
 package main
 

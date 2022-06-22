@@ -1,13 +1,28 @@
+// Copyright 2022 Gleb Otochkin
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+/// Binary tree implementation with comaprison of two binary trees
+
 package main
 
 import (
-	"fmt"
-	"os"
-	"strings"
-	"strconv"
 	"flag"
+	"fmt"
 	"io"
-
+	"os"
+	"strconv"
+	"strings"
 )
 
 type arrayVars []string
@@ -27,55 +42,55 @@ var (
 )
 
 type Bnode struct {
-	left *Bnode
+	left  *Bnode
 	right *Bnode
-	data int64
+	data  int64
 }
 
 type Btree struct {
 	root *Bnode
 }
 
-func (t *Btree) insert (data int64) *Btree {
+func (t *Btree) insert(data int64) *Btree {
 	if t.root == nil {
-		t.root = &Bnode {
-			data: data,
-			left: nil,
+		t.root = &Bnode{
+			data:  data,
+			left:  nil,
 			right: nil,
 		}
-	}else{
+	} else {
 		t.root.insert(data)
 	}
 	return t
 }
 
-func (n *Bnode) insert (data int64) {
+func (n *Bnode) insert(data int64) {
 	if n == nil {
 		return
 	} else if data <= n.data {
 		if n.left == nil {
-			n.left = &Bnode {
-				data: data,
-				left: nil,
+			n.left = &Bnode{
+				data:  data,
+				left:  nil,
 				right: nil,
 			}
-		}else{
+		} else {
 			n.left.insert(data)
 		}
 	} else {
 		if n.right == nil {
-			n.right = &Bnode {
-				data: data,
-				left: nil,
+			n.right = &Bnode{
+				data:  data,
+				left:  nil,
 				right: nil,
 			}
 		} else {
 			n.right.insert(data)
 		}
-	}	
+	}
 }
 
-func(t *Btree) mirrorTree(n *Bnode) {
+func (t *Btree) mirrorTree(n *Bnode) {
 	if n != nil {
 		t.mirrorTree(n.left)
 		t.mirrorTree(n.right)
@@ -94,8 +109,8 @@ func printtree(w io.Writer, node *Bnode, ns int, ch rune) {
 		fmt.Fprint(w, " ")
 	}
 	fmt.Fprintf(w, "%c:%v\n", ch, node.data)
-	printtree(w,node.left,ns+2,'L')
-	printtree(w, node.right,ns+2,'R')
+	printtree(w, node.left, ns+2, 'L')
+	printtree(w, node.right, ns+2, 'R')
 }
 
 func main() {
@@ -104,13 +119,13 @@ func main() {
 	tree := &Btree{}
 	for _, i := range inputArray {
 		//k, err := strconv.Atoi(i)
-		k, err := strconv.ParseInt(i,10,64)
+		k, err := strconv.ParseInt(i, 10, 64)
 		if err != nil {
 			panic(err)
 		}
 		tree.insert(k)
 	}
-	printtree(os.Stdout,tree.root,0,'M')
+	printtree(os.Stdout, tree.root, 0, 'M')
 	tree.mirrorTree(tree.root)
-	printtree(os.Stdout,tree.root,0,'M')
+	printtree(os.Stdout, tree.root, 0, 'M')
 }
