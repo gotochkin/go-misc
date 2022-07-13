@@ -30,11 +30,19 @@ func main() {
 	st := ""
 	if len(*inputString) > 0 {
 		for i := range *inputString {
-			if i[0] == "-" || i[0] == "+" {
-				st = i[1]
-			} else {
-				st = i[0]
+			if *inputString[0:1] == "+" || *inputString[0:1] == "-" {
+				if len(*inputString) < 2 {
+					fmt.Println("Not valid number")
+				}
+				st := *inputString[1:2]
 			}
+			// if i[0] == "-" || i[0] == "+" {
+			// 	st = i[1]
+			// } else {
+			// 	st = i[0]
+			// }
+			//st = i[0]
+			fmt.Printf("%i", str)
 
 		}
 		fmt.Println(st)
