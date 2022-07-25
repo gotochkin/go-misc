@@ -28,21 +28,23 @@ var (
 func main() {
 	flag.Parse()
 	st := ""
+	cv := *inputString
 	if len(*inputString) > 0 {
-		for i := range *inputString {
-			if *inputString[0:1] == "+" || *inputString[0:1] == "-" {
+		for i := range cv {
+			if cv[0:1] == "+" || cv[0:1] == "-" {
 				if len(*inputString) < 2 {
 					fmt.Println("Not valid number")
 				}
-				st := *inputString[1:2]
+				st = cv[1:2]
 			}
+
 			// if i[0] == "-" || i[0] == "+" {
 			// 	st = i[1]
 			// } else {
 			// 	st = i[0]
 			// }
 			//st = i[0]
-			fmt.Printf("%i", str)
+			fmt.Printf("%d", i)
 
 		}
 		fmt.Println(st)
