@@ -19,6 +19,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 )
 
 var (
@@ -27,25 +28,25 @@ var (
 
 func main() {
 	flag.Parse()
-	st := ""
+	st := 0
 	cv := *inputString
+	p := 0
 	if len(*inputString) > 0 {
-		for i := range cv {
-			if cv[0:1] == "+" || cv[0:1] == "-" {
-				if len(*inputString) < 2 {
-					fmt.Println("Not valid number")
-				}
-				st = cv[1:2]
+		if cv[0:1] == "+" || cv[0:1] == "-" {
+			if len(*inputString) < 2 {
+				fmt.Println("Not valid number")
+				os.Exit(1)
 			}
-
-			// if i[0] == "-" || i[0] == "+" {
-			// 	st = i[1]
-			// } else {
-			// 	st = i[0]
-			// }
-			//st = i[0]
-			fmt.Printf("%d", i)
-
+			st = 1
+		}
+		for i := st; i < len(cv); i++ {
+			if cv[i] == '.' {
+				p++
+			}
+			if (cv[i] < '0' || cv[i] > '9' || p > 1) && cv[i] != '.' {
+				fmt.Println("Not valid number")
+				os.Exit(2)
+			}
 		}
 		fmt.Println(st)
 	}
