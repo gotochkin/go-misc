@@ -13,67 +13,101 @@
 // limitations under the License.
 //
 /// CRUD operations using go-ora driver https://github.com/sijms/go-ora
+/// DDL and DDL operations are prformed for a samle table with employees data
 
-package main
+package db_conn
 
 import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"os"
-
-	go_ora "github.com/sijms/go-ora/v2"
+	"log"
+	"strconv"
+	"time"
 )
 
-func usage() {
+func Usage() {
 	fmt.Println()
-	fmt.Println("CRUD operations")
-	fmt.Println("  sample code with DDL/DML operations with Oracle database")
+	fmt.Println("Database CRUD operations")
+	fmt.Println("  sample code with DDL/DML operations on Oracle database")
 	fmt.Println()
 	fmt.Println("Usage:")
-	fmt.Println(`  crud_ops -cs server_url`)
+	fmt.Println(`  -h hostname -p port -s service -u username -pw password -w wallet_path`)
 	flag.PrintDefaults()
 	fmt.Println()
 	fmt.Println("Example:")
-	fmt.Println(`  crud_ops -cs "oracle://user:pass@server/service_name"`)
+	fmt.Println(`  crud_ops -h adb.us-ashburn-1.oraclecloud.com -p 1522 -s m7c5hdup4eqqydh_glebatp02_tp.adb.oraclecloud.com -u myuser -pw MyStrongPassword -w /wallet`)
 	fmt.Println()
 }
 
 var (
-	conn_str = flag.String("cs", "", "Connection URL, oracle://user:pass@server/service_name")
+	db   *sql.DB
+	data EmpData
+	err  error
 )
 
-func main() {
-	flag.Parse()
-	fmt.Println(*conn_str)
-	urlOptions := map[string]string{
-		"trace file": "trace.log",
-	}
-	// databaseURL := go_ora.BuildUrl(server, port, service, user, password, urlOptions)
-	// conn, err := sql.Open("oracle", databaseURL)
-	// // check error
-	databaseURL := go_ora.BuildUrl("host", "1522", "m5c5hpup7eqqydh_glebatp02_tp.adb.oraclecloud.com", "admin", "ShittyPassword01#", urlOptions)
-	fmt.Println(databaseURL)
-	if *conn_str == "" {
-		fmt.Println("Missing -cs (connection string) parameter")
-		usage()
-		os.Exit(1)
-	}
-	dbconn, err := sql.Open("oracle", *conn_str)
-	if err != nil {
-		fmt.Println("Can't open the connection ", err)
-		return
-	}
-	defer func() {
-		err = dbconn.Close()
-		if err != nil {
-			fmt.Println("Can't close connection: ", err)
-		}
-	}()
+type Employee struct {
+	Employee_id int64
+	First_name  string
+	Last_name   string
+	Hire_date   time.Time
+	Manager_id  int64
+}
+type EmpData struct {
+	Employees       []Employee
+	GetResponseTime string
+}
 
-	err = dbconn.Ping()
+// Database Pool
+func configurePool(db *sql.DB) {
+
+	// Maximum number of connections in idle connection pool.
+	db.SetMaxIdleConns(3)
+
+	// Maximum number of open connections to the database.
+	db.SetMaxOpenConns(10)
+
+	// Maximum time (in seconds) that a connection can remain open.
+	db.SetConnMaxLifetime(1800 * time.Second)
+
+}
+func RunApp(dbUser string, dbPwd string, dbHost string, dbPort int, dbName string, dbWallet string) {
+	//Connect to the database
+	db, err = connectOracle(dbUser, dbPwd, dbHost, dbPort, dbName, dbWallet)
+	if err != nil {
+		log.Fatalf("connectOracle: failed to create connection: %v", err)
+	}
+	err = db.Ping()
 	if err != nil {
 		fmt.Println("Can't ping the database ", err)
 	}
+	fmt.Println("INFO: Connected!")
+
+	// Check if the table exists in the database and create if it not there
+
+	chk, chkerr := checkDBObjectOra(db, "EMPLOYEES")
+	if chkerr != nil {
+		log.Fatalf("checkDBObjectOra: Unable to verify the object - %s", chkerr)
+	}
+	if chk == 0 {
+		//
+		errddl := runDDL(db)
+		if errddl != nil {
+			log.Fatalf("runDDL: Unable to create object: %s", err)
+		}
+	} else {
+		fmt.Println("INFO: The object with the same name is found in the database.")
+	}
+	data, err = getEmployeesOra(db)
+	if len(data.Employees) == 0 {
+		fmt.Printf("INFO: getEmployeesOra: The table employees is empty and will be filled by data")
+		err = PostEmployeeOra(db)
+		if err != nil {
+			fmt.Printf("ERR: PostEmployeeOra: cannot insert data %s", err)
+		}
+	} else {
+		fmt.Printf("INFO: getEmployeesOra: The table has been filled already and contains %s rows\n", strconv.Itoa(len(data.Employees)))
+	}
+	//
 
 }

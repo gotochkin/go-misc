@@ -1,4 +1,4 @@
-module gleb.ca/go-ora
+module db_conn
 
 go 1.18
 
