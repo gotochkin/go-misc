@@ -34,25 +34,29 @@ func (i *arrayVars) Set(s string) error {
 }
 
 var (
-	ns         = flag.Int("ns", 1, "Size of array")
 	inputArray arrayVars
 )
 
-func find_max_array(ia []int, n int) (int, error) {
+func findMaxArray(ia []int) (int, int, int, error) {
 	// Search
 	curr_max := ia[0]
 	global_max := ia[0]
-	for i := 1; i < n; i++ {
+	s := 0
+	e := 0
+	for i := range ia {
 		if curr_max < 0 {
 			curr_max = ia[i]
+			s = i
 		} else {
 			curr_max += ia[i]
 		}
 		if global_max < curr_max {
 			global_max = curr_max
+			e = i
 		}
+		//fmt.Printf("Index for the first and last members in subarray %d %d current_max %d global max %d\n", s, e, curr_max, global_max)
 	}
-	return global_max, nil
+	return s, e, global_max, nil
 }
 
 func main() {
@@ -69,9 +73,9 @@ func main() {
 		}
 		ia = append(ia, k)
 	}
-	m, err := find_max_array(ia, *ns)
+	s, e, m, err := findMaxArray(ia)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(m)
+	fmt.Printf("Arrray starts on element index %d, finishes on %d and the sum of members is %d \n", s, e, m)
 }
