@@ -105,7 +105,7 @@ func compareTree(n1 *Bnode, n2 *Bnode) bool {
 	if n1 == nil && n2 == nil {
 		return true
 	}
-	if n1 != nil && n1 != nil {
+	if n1 != nil && n2 != nil {
 		return ((n1.data == n2.data) &&
 			compareTree(n1.left, n2.left) && compareTree(n1.right, n2.right))
 	}
